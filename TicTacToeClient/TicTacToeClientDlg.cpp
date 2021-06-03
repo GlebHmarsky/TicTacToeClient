@@ -31,8 +31,9 @@ HWND hWnd_LobbyL;
 HWND hWnd_TB;
 bool fIsCross = true;
 bool canDoStep = false;
+bool isGameEnd = false;
 HDC m_hCDC;
-double RX1 = 20, RY1 = 20, RX2 = 520, RY2 = 520; //Границы рисунка в физических коорданатах
+double RX1 = 20, RY1 = 20, RX2 = 270, RY2 = 270; //Границы рисунка в физических коорданатах
 CTicTacToeClientDlg* DlgExample;
 CList<CPoint> lPoints;
 // CTicTacToeClientDlg dialog
@@ -584,6 +585,7 @@ void CTicTacToeClientDlg::OnBnClickedDisconnect()
 	pTB->SetWindowTextA("Вы отключились от сервера,\r\nНо можете переподключиться в любое время");
 	CListBox* pLB = (CListBox*)(CListBox::FromHandle(hWnd_LB));
 	pLB->ResetContent();
+	m_LobbyList.ResetContent();
 }
 
 void CTicTacToeClientDlg::OnClose()
@@ -670,6 +672,7 @@ void CTicTacToeClientDlg::OnBnClickedLeavelobby()
 	}
 	accessButtons(2);
 	pTB->SetWindowTextA("Вы отсоединились от лобби");
+	Refresh();
 }
 
 void CTicTacToeClientDlg::OnBnClickedRematch()
@@ -942,6 +945,7 @@ UINT GetRecv(PVOID lpParam) {
 					//Игра останавливается.
 					fIsCross = true;
 					canDoStep = false;
+					isGameEnd = true;
 					continue;
 				}
 
@@ -968,7 +972,10 @@ UINT GetRecv(PVOID lpParam) {
 				case 3://Опонент вышел и надо бы ждать следующего. + если игра уже началась то вы победитель
 					DlgExample->accessButtons(3);
 					canDoStep = false;
-					pTB->SetWindowTextA("Ваш соперник вышел и вы победили по технической причине.\r\nТак же вы можете подождать пока кто-нибудь\r\n придёт к вам");
+					if (isGameEnd) 
+						pTB->SetWindowTextA("Надо подождать второго игрока");
+					else
+						pTB->SetWindowTextA("Ваш соперник вышел и вы победили по \r\nтехнической причине. Так же вы можете \r\nподождать пока кто-нибудь\r\nпридёт к вам");
 					Refresh();
 					break;
 
@@ -982,11 +989,13 @@ UINT GetRecv(PVOID lpParam) {
 					canDoStep = true;
 					pTB->SetWindowTextA("Игра началась! Вы ходите ПЕРВЫМ");
 					DlgExample->accessButtons(3);
+					isGameEnd = false;
 					break;
 				case 6: //Игра началась и этот клиент НЕ ходит первый
 					canDoStep = false;
 					pTB->SetWindowTextA("Игра началась! Вы ходите ВТОРЫМ");
 					DlgExample->accessButtons(3);
+					isGameEnd = false;
 					break;
 				case 8: //Ща будет рематч
 					Refresh();
@@ -998,6 +1007,9 @@ UINT GetRecv(PVOID lpParam) {
 					canDoStep = false;
 					pTB->SetWindowTextA("Не удалось создать лобби\r\nПревышен допустимый лимит");
 					DlgExample->accessButtons(2);
+					break;
+				case 10: //Сообщение, что оппонент хочет рематч					
+					pTB->SetWindowTextA("Ваш оппонент хочет рематч!");
 					break;
 				default:
 					break;
