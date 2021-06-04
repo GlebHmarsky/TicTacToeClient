@@ -118,7 +118,7 @@ BOOL CTicTacToeClientDlg::OnInitDialog()
 	hWnd_LobbyL = m_LobbyList.m_hWnd;
 	hWnd_TB = GetDlgItem(IDC_MESSAGE)->m_hWnd;
 	GetDlgItem(IDC_MESSAGE)->SetWindowTextA("Необходимо присоединиться к серверу,\r\nчтобы сыграть");
-
+	GetDlgItem(IDC_NICKNAME)->SetWindowTextA("unknown");
 	hSingleEvent = WSACreateEvent();
 
 	DlgExample = this;
@@ -636,6 +636,10 @@ void CTicTacToeClientDlg::OnBnClickedCreatelobby()
 	CString name;
 	CEdit* pTB = (CEdit*)(CEdit::FromHandle(hWnd_TB));
 	GetDlgItem(IDC_NICKNAME)->GetWindowText(name);
+	if (name.IsEmpty()) {
+		MessageBox("Введите Ваш никнейм");
+		return;
+	}
 	char c;
 	for (int i = 0; i < name.GetLength(); i++)
 	{
@@ -684,7 +688,8 @@ void CTicTacToeClientDlg::OnBnClickedRematch()
 	{
 		return;
 	}
-
+	CEdit* pTB = (CEdit*)(CEdit::FromHandle(hWnd_TB));
+	pTB->SetWindowTextA("Подождите согласие второго игрока на рематч");
 }
 
 void CTicTacToeClientDlg::OnBnClickedButtonrefresh()
@@ -948,9 +953,20 @@ UINT GetRecv(PVOID lpParam) {
 					isGameEnd = true;
 					continue;
 				}
-
+				//Проверим что не забито ли всё поле 
+				if (lPoints.GetCount() >= 9)
+				{
+					//Всё поле забито
+					pTB->SetWindowTextA("Ничья. Вы может сыграть рематч!");
+					DlgExample->accessButtons(4);
+				}
 				fIsCross = !fIsCross;
 				canDoStep = !canDoStep;
+				if (canDoStep) {
+					pTB->SetWindowTextA("Ваш ход");
+				}
+				else
+					pTB->SetWindowTextA("Ожидайте пока походить оппонент");
 			}
 			else if (a == 0)
 			{
