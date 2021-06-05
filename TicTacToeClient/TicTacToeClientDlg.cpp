@@ -635,20 +635,13 @@ void CTicTacToeClientDlg::OnBnClickedCreatelobby()
 
 	CString name;
 	CEdit* pTB = (CEdit*)(CEdit::FromHandle(hWnd_TB));
-	GetDlgItem(IDC_NICKNAME)->GetWindowText(name);
+	GetDlgItem(IDC_NICKNAME)->GetWindowTextA(name);
 	if (name.IsEmpty()) {
 		MessageBox("Введите Ваш никнейм");
 		return;
 	}
 	char c;
-	for (int i = 0; i < name.GetLength(); i++)
-	{
-		c = name.GetAt(i);
-		if (c < 0) {
-			MessageBox("Плохое имя, введите лучше английское");
-			return;
-		}
-	}
+
 	name = "-1 " + name;
 	char* str = new char[name.GetLength() + 1];
 	strcpy(str, name);
@@ -724,22 +717,6 @@ void CTicTacToeClientDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		return;
 	}
-	/*CPoint Pcenter = getPixelPoint(*Lcenter);
-
-	if (fIsCross)
-		DrawCross(Pcenter.x, Pcenter.y);
-	else
-		DrawCircle(Pcenter.x, Pcenter.y);
-
-	lPoints.AddTail(*Lcenter);
-	POSITION* PosArr;
-	if ((PosArr = IsWinningStep()) != NULL) {
-		MakeWinnerLine(PosArr);
-		CString str = (fIsCross ? "Крестики" : "Нолики");
-		MessageBox("Win: " + str);
-	}
-
-	fIsCross = !fIsCross;*/
 	CDialog::OnLButtonUp(nFlags, point);
 }
 
@@ -748,8 +725,7 @@ void CTicTacToeClientDlg::OnLButtonUp(UINT nFlags, CPoint point)
 UINT CTicTacToeClientDlg::SendMessageToServer(const char* Buff)
 {
 	char	szMessage[1024];		// Сообщение для отправки
-	BOOL	bSendOnly = FALSE;	// Только отправка данных
-
+	BOOL	bSendOnly = FALSE;	// Только отправка данных	 
 	char	szBuffer[DEFAULT_BUFFER];
 	int		ret,
 		i;
@@ -799,94 +775,8 @@ UINT GetRecv(PVOID lpParam) {
 	DWORD RecvBytes;
 	WSABUF DataBuffer;
 
-
-	/*if (WSAEventSelect(m_sClient, hSingleEvent,
-		FD_READ) == SOCKET_ERROR)
-	{
-		sprintf_s(Str, sizeof(Str),
-			"WSAEventSelect() failed with error %d",
-			WSAGetLastError());
-		pLB->AddString((LPTSTR)Str);
-		return;
-	}*/
-
 	while (TRUE)
 	{
-		/*	Функция WSAWaitForMultipleEvents возвращается, когда один или все указанные объекты событий находятся в сигнальном состоянии,
-			когда истекает интервал времени ожидания или когда выполняется подпрограмма завершения ввода-вывода.
-
-			If the fWaitAll parameter is FALSE, the return value minus WSA_WAIT_EVENT_0
-			(!!!) indicates the lphEvents array INDEX(!) of the signaled event object that satisfied the wait.
-		*/
-		/*if ((Event = WSAWaitForMultipleEvents(1,
-			&hSingleEvent, FALSE, WSA_INFINITE, FALSE)) ==
-			WSA_WAIT_FAILED)
-		{
-			sprintf_s(Str, sizeof(Str),
-				"WSAWaitForMultipleEvents failed"
-				" with error %d", WSAGetLastError());
-			pLB->AddString(Str);
-			return 1;
-		}*/
-		/*
-		Функция WSAEnumNetworkEvents обнаруживает вхождения сетевых событий для указанного сокета,
-		очищает записи внутренних сетевых событий и сбрасывает объекты событий (необязательно).
-		*/
-		//if (WSAEnumNetworkEvents(
-		//	m_sClient,
-		//	&hSingleEvent,
-		//	&NetworkEvents) == SOCKET_ERROR)
-		//{
-		//	sprintf_s(Str, sizeof(Str),
-		//		"WSAEnumNetworkEvents failed"
-		//		" with error %d", WSAGetLastError());
-		//	pLB->AddString(Str);
-		//	return 1;
-		//}
-		//if (NetworkEvents.lNetworkEvents & FD_READ)
-		//{
-		//	if (NetworkEvents.lNetworkEvents & FD_READ &&
-		//		NetworkEvents.iErrorCode[FD_READ_BIT] != 0)
-		//	{
-		//		sprintf_s(Str, sizeof(Str),
-		//			"FD_READ failed with error %d",
-		//			NetworkEvents.iErrorCode[FD_READ_BIT]);
-		//		pLB->AddString(Str);
-		//		break;
-		//	}
-		//	DataBuffer.buf = szBuffer;
-		//	DataBuffer.len = DEFAULT_BUFFER;
-		//	//BUG ??? Flags - не используются нигде больше
-		//	Flags = 0;
-		//	/*
-		//	* Функция WSARecv получает данные из подключенного сокета или привязанного сокета без установления соединения.
-		//	*
-		//	* Если ошибки не возникает и операция приема завершается немедленно, WSARecv возвращает ноль.
-		//	В этом случае процедура завершения будет уже запланирована для вызова, когда вызывающий поток перейдет в состояние предупреждения.
-		//	В противном случае возвращается значение SOCKET_ERROR , а конкретный код ошибки можно получить, вызвав WSAGetLastError
-		//	*/
-		//	
-		//	if (WSARecv(
-		//		m_sClient,
-		//		&DataBuffer,
-		//		1,
-		//		&RecvBytes,
-		//		&Flags, NULL, NULL) == SOCKET_ERROR)
-		//	{
-		//		if (WSAGetLastError() != WSAEWOULDBLOCK)
-		//		{
-		//			sprintf_s(Str, sizeof(Str),
-		//				"WSARecv()failed with "
-		//				" error %d", WSAGetLastError());
-		//			pLB->AddString(Str);
-		//			return 1;
-		//		}
-		//	}
-		//	else
-		//	{
-		//		CString str(szBuffer, RecvBytes);
-
-
 		/*
 		* Функция recv получает данные от подключенного сокета или привязанного сокета без установления соединения.
 		* Если ошибок не происходит, recv возвращает количество полученных байтов, и
@@ -968,14 +858,14 @@ UINT GetRecv(PVOID lpParam) {
 				else
 					pTB->SetWindowTextA("Ожидайте пока походить оппонент");
 			}
-			else if (a == 0)
-			{
-				//Вас отключили от лобби
-			}
 			else if (a > 0)
 			{
 				switch (a)
 				{
+				case 0://Имя лобби уже занято
+					pTB->SetWindowTextA("Лобби с таким же ником уже создано\r\nПопробуйте назвать себя как-то иначе");
+					DlgExample->accessButtons(2);
+					break;
 				case 1://Очистить буффер лобби
 					pLobbyL->ResetContent();
 					break;
@@ -988,7 +878,7 @@ UINT GetRecv(PVOID lpParam) {
 				case 3://Опонент вышел и надо бы ждать следующего. + если игра уже началась то вы победитель
 					DlgExample->accessButtons(3);
 					canDoStep = false;
-					if (isGameEnd) 
+					if (isGameEnd)
 						pTB->SetWindowTextA("Надо подождать второго игрока");
 					else
 						pTB->SetWindowTextA("Ваш соперник вышел и вы победили по \r\nтехнической причине. Так же вы можете \r\nподождать пока кто-нибудь\r\nпридёт к вам");
@@ -1038,10 +928,6 @@ UINT GetRecv(PVOID lpParam) {
 			//Вывести сообщение в список лобби
 			pLobbyL->AddString(str);
 		}
-		/*	}
-		}*/
-
 	}//while
 	return 0;
 }
-
